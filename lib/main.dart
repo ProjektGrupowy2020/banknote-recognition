@@ -45,12 +45,12 @@ class TakePictureScreen extends StatefulWidget {
 
 class TakePictureScreenState extends State<TakePictureScreen> {
   CameraController _controller;
-  String tmpPath;
   int frames = 0;
   Future<void> _initializeControllerFuture;
   static const platform = const MethodChannel('samples.flutter.dev/battery');
   int frameCounter = 0;
   int _prediction = 0;
+  int _iter = 0;
   String error;
   bool busy = false;
 
@@ -59,9 +59,8 @@ class TakePictureScreenState extends State<TakePictureScreen> {
     var framesY = cameraImage.planes[0].bytes;
     var framesU = cameraImage.planes[1].bytes;
     var framesV = cameraImage.planes[2].bytes;
-    bool res = false;
     try {
-      res = await platform.invokeMethod('getPrediction',
+      platform.invokeMethod('getPrediction',
           <String, dynamic>{'width':cameraImage.width, 'height':cameraImage.height,
                             'Y': framesY,'U': framesU,'V': framesV});
       //await platform.invokeMethod('getPrediction', {'file': file});
@@ -71,7 +70,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
     }
 
     setState(() {
-      busy = res;
+      busy = true;
     });
   }
 
@@ -94,22 +93,19 @@ class TakePictureScreenState extends State<TakePictureScreen> {
         final args = call.arguments;
         setState(() {
           _prediction = args["result"];
+          _iter = _iter + 1;
           busy = false;
         });
       }
       return true;
     });
-    getTemporaryDirectory().then((onValue) {
-      tmpPath = "${onValue.path}/xd.png";
-    });
 
     _initializeControllerFuture.then( (x) {
 
       _controller.startImageStream((CameraImage availableImage) async {
-        if(busy || frames++ < 60)
+        if(busy)
             return;
         frames = 0;
-        //await _controller.takePicture(tmpPath);
         await _getPrediction(availableImage);
       });
 
@@ -130,7 +126,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
   Widget build(BuildContext context) {
     List<String> money =["10", "20", "50", "100", "200", "500", "None"];
     return Scaffold(
-      appBar: AppBar(title: Text('${money[_prediction]}')),
+      appBar: AppBar(title: Text('${money[_prediction]} $_iter')),
       // Wait until the controller is initialized before displaying the
       // camera preview. Use a FutureBuilder to display a loading spinner
       // until the controller has finished initializing.
