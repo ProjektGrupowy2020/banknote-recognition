@@ -23,6 +23,7 @@ import java.util.HashMap;
 import android.os.Bundle;
 
 public class MainActivity extends FlutterActivity {
+    private static final boolean isDebug = false; 
     private static final String CHANNEL = "samples.flutter.dev/battery";
     private static final LinkedBlockingQueue<Runnable> neuralNetFrameQueue = new LinkedBlockingQueue<Runnable>(1);
     Module module;
@@ -124,13 +125,17 @@ public class MainActivity extends FlutterActivity {
 
         long stop = System.currentTimeMillis();
         long time = stop - start;
-        Log.d("Time", "Convert bitmap to float tensor: " +time);
+        if(isDebug) {
+            Log.d("Time", "Convert bitmap to float tensor: " +time);
+        }
 
         Tensor outputTensor = module.forward(IValue.from(inputTensor)).toTensor();
         long sxd = System.currentTimeMillis();
         time = sxd - stop;
 
-        Log.d("Time", "Inference: " + time);
+        if(isDebug) {
+            Log.d("Time", "Inference: " + time);
+        }
 
         float[] scores = outputTensor.getDataAsFloatArray();
 
@@ -141,12 +146,13 @@ public class MainActivity extends FlutterActivity {
                 max = scores[i];
                 maxInd = i;
             }
-            //result[i] = scores[i];
-            Log.d("SCORES", String.format("Class: %d -----  %f", i, scores[i]));
+            if(isDebug) {
+                Log.d("SCORES", String.format("Class: %d -----  %f", i, scores[i]));
+            }
         }
-        //int maxIdx = scores.indices.maxBy { scores[it] } ?: -1; /// co to ??
-        Log.d("Prediction", String.format("Class: %d -----  %f", maxInd, scores[maxInd]));
-
+        if(isDebug) {
+            Log.d("Prediction", String.format("Class: %d -----  %f", maxInd, scores[maxInd]));
+        }
         return maxInd;
     }
 
