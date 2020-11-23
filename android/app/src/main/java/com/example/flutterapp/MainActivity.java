@@ -25,6 +25,7 @@ import android.os.Bundle;
 public class MainActivity extends FlutterActivity {
     private static final boolean isDebug = false; 
     private static final String CHANNEL = "samples.flutter.dev/battery";
+    private static FlutterEngine _flutterEngine;
     private static final LinkedBlockingQueue<Runnable> neuralNetFrameQueue = new LinkedBlockingQueue<Runnable>(1);
     Module module;
     private static final ThreadPoolExecutor neuralNetThreadPool = new ThreadPoolExecutor(
@@ -34,12 +35,17 @@ public class MainActivity extends FlutterActivity {
             java.util.concurrent.TimeUnit.SECONDS,
             neuralNetFrameQueue);
 
+    @Override
+    protected void onDestroy() {
+        _flutterEngine.getPlatformViewsController().detachFromView();
+        super.onDestroy();
+    }
 
     // Chuj wiem ktore dziala - konstruktor czy onCreate :/
-    public MainActivity(){
-        super();
-        module = getModel("resnet_18_acc94_29.pt");
-    }
+    // public MainActivity(){
+    //     super();
+    //     module = getModel("resnet_18_acc94_29.pt");
+    // }
 
     public void onCreate(Bundle savedState)
     {
@@ -52,6 +58,7 @@ public class MainActivity extends FlutterActivity {
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
         super.configureFlutterEngine(flutterEngine);
+        _flutterEngine = flutterEngine; 
         flutterChannel = new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL);
         flutterChannel.setMethodCallHandler(
                         (call, result) -> {

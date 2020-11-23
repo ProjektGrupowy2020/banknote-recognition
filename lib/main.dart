@@ -87,8 +87,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
     } else {
       predictionActions(this.money[_prediction]);
       setState(() {
-        this.currentDisplayMessage =
-            "Banknot " + money[_prediction] + " złotowy";
+        this.currentDisplayMessage = "Banknot " + money[_prediction] + " złoty";
       });
     }
   }
@@ -141,6 +140,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
     this.soundmap["500"] = await soundpool.load(asset);
     asset = await rootBundle.load("sounds/None.wav");
     this.soundmap["None"] = await soundpool.load(asset);
+    // play starting sound
     await this.soundpool.play(this.soundmap['None']);
   }
 
@@ -149,8 +149,8 @@ class TakePictureScreenState extends State<TakePictureScreen> {
     this.vibrationmap["10"] = [0, 300];
     this.vibrationmap["20"] = [0, 300, 300, 300];
     this.vibrationmap["50"] = [0, 300, 300, 300, 300, 300];
-    this.vibrationmap["100"] = [0, 1000, 500, 1000];
-    this.vibrationmap["200"] = [0, 1000, 500, 1000, 500, 1000];
+    this.vibrationmap["100"] = [0, 1000, 300, 1000];
+    this.vibrationmap["200"] = [0, 1000, 300, 1000, 300, 1000];
     this.vibrationmap["500"] = [0, 3000];
   }
 
@@ -228,7 +228,11 @@ class TakePictureScreenState extends State<TakePictureScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(this.currentDisplayMessage)),
+      appBar: AppBar(
+          title: Text(
+        this.currentDisplayMessage,
+        textScaleFactor: 1.4,
+      )),
       // Wait until the controller is initialized before displaying the
       // camera preview. Use a FutureBuilder to display a loading spinner
       // until the controller has finished initializing.
