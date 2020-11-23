@@ -6,9 +6,8 @@ class TakePictureScreen extends StatefulWidget {
   final CameraDescription camera;
 
   const TakePictureScreen({
-    Key key,
     @required this.camera,
-  }) : super(key: key);
+  }) : super();
 
   @override
   TakePictureScreenState createState() => TakePictureScreenState();
@@ -45,7 +44,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
 
   @override
   Widget build(BuildContext context) {
-    FutureBuilder<void>(
+    return FutureBuilder<void>(
       future: _initializeControllerFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {

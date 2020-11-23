@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:core';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -33,9 +34,8 @@ class TakePictureScreen extends StatefulWidget {
   final CameraDescription camera;
 
   const TakePictureScreen({
-    Key key,
     @required this.camera,
-  }) : super(key: key);
+  }) : super();
 
   @override
   TakePictureScreenState createState() => TakePictureScreenState();
@@ -44,19 +44,19 @@ class TakePictureScreen extends StatefulWidget {
 class TakePictureScreenState extends State<TakePictureScreen> {
   CameraController _controller;
   Soundpool soundpool;
-  int frames = 0;
+  String error;
   Future<void> _initializeControllerFuture;
+  int frames = 0;
   static const platform = const MethodChannel('samples.flutter.dev/battery');
   int frameCounter = 0;
   int _prediction = 0;
   int _iter = 0;
-  String error;
   bool busy = false;
   // displaying values
   List<String> money = ["10", "20", "50", "100", "200", "500", "None"];
-  List<int> _currentPredictionsList = new List<int>();
+  List<int> _currentPredictionsList = new List.generate(8, (int index) => 0);
   int maxCorrectPredictionsInSequence =
-      4; // this is arbitrary and can be changed.
+      8; // this is arbitrary and can be changed.
   String defaultDisplayMessage = "Skieruj kamerę na banknot!";
   String currentDisplayMessage = "";
   bool hasDetectedPrediction = false;
@@ -84,7 +84,6 @@ class TakePictureScreenState extends State<TakePictureScreen> {
 
     if (this.money[_prediction] == 'None') {
       this.currentDisplayMessage = defaultDisplayMessage;
-      await this.soundpool.play(this.soundmap['None']);
     } else {
       predictionActions(this.money[_prediction]);
       setState(() {
@@ -142,6 +141,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
     this.soundmap["500"] = await soundpool.load(asset);
     asset = await rootBundle.load("sounds/None.wav");
     this.soundmap["None"] = await soundpool.load(asset);
+    await this.soundpool.play(this.soundmap['None']);
   }
 
   void loadVibrationOptions() {
@@ -244,11 +244,6 @@ class TakePictureScreenState extends State<TakePictureScreen> {
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.camera_alt),
-        // Provide an onPressed callback.
-        //onPressed: _getPrediction,
-      ),
     );
   }
 }
@@ -257,7 +252,8 @@ class TakePictureScreenState extends State<TakePictureScreen> {
 class DisplayPictureScreen extends StatelessWidget {
   final String imagePath;
 
-  const DisplayPictureScreen({Key key, this.imagePath}) : super(key: key);
+  const DisplayPictureScreen({Key key, @required this.imagePath})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
