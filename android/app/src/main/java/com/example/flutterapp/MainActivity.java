@@ -41,12 +41,6 @@ public class MainActivity extends FlutterActivity {
         super.onDestroy();
     }
 
-    // Chuj wiem ktore dziala - konstruktor czy onCreate :/
-    // public MainActivity(){
-    //     super();
-    //     module = getModel("resnet_18_acc94_29.pt");
-    // }
-
     public void onCreate(Bundle savedState)
     {
         super.onCreate(savedState);
