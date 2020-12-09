@@ -56,7 +56,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
   List<String> money = ["10", "20", "50", "100", "200", "500", "None"];
   List<int> _currentPredictionsList = new List.generate(8, (int index) => 0);
   int maxCorrectPredictionsInSequence =
-      8; // this is arbitrary and can be changed.
+      4; // this is arbitrary and can be changed.
   String defaultDisplayMessage = "Skieruj kamerę na banknot!";
   String currentDisplayMessage = "";
   bool hasDetectedPrediction = false;
@@ -96,6 +96,28 @@ class TakePictureScreenState extends State<TakePictureScreen> {
     var framesY = cameraImage.planes[0].bytes;
     var framesU = cameraImage.planes[1].bytes;
     var framesV = cameraImage.planes[2].bytes;
+
+    double yValue = 0.0;
+    //double uValue = 0.0;
+    //double vValue = 0.0;
+
+    yValue = framesY.map((e) => e).reduce((yValue, element) => yValue + element) / framesY.length;
+    //uValue = framesU.map((e) => e).reduce((uValue, element) => uValue + element) / framesU.length;
+    //vValue = framesV.map((e) => e).reduce((vValue, element) => vValue + element) / framesV.length;
+
+    debugPrint('Y mean:  $yValue');
+
+    if (yValue < 15) {
+      setState(() {
+        busy = true;
+      });
+      await Future.delayed(Duration(seconds: 1));
+      setState(() {
+        busy = false;
+      });
+      return;
+    }
+
     try {
       platform.invokeMethod('getPrediction', <String, dynamic>{
         'width': cameraImage.width,
@@ -124,7 +146,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
   }
 
   void loadSoundAssets() async {
-    this.soundpool = Soundpool(streamType: StreamType.notification);
+    this.soundpool = Soundpool(streamType: StreamType.music);
     ByteData asset;
     asset = await rootBundle.load("sounds/10.wav");
     this.soundmap["10"] = await soundpool.load(asset);
